@@ -21,7 +21,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename='/
 LCD_POWER_PIN=8
 MOTION_PIN=11
 LCD_POWER_DETECT_PIN = 24
-TIME_UNTIL_TURN_OFF_MIN= 2 # time of no detected motion until the screen is turned off
+TIME_UNTIL_TURN_OFF_MIN= 15 # time of no detected motion until the screen is turned off
 CHECK_FOR_TURN_OFF_SEC = 30 # sleep time between test for turning off the display
 
 
