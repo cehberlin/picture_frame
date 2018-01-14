@@ -9,18 +9,19 @@ from __future__ import division
 from __future__ import with_statement
 import RPi.GPIO as GPIO
 import time
+from datetime import datetime
 import os, sys
 import threading
 
 import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename='motionInterrupt.log', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename='/tmp/motionInterrupt.log', level=logging.DEBUG)
 
 
 ###Configuration
 LCD_POWER_PIN=8
 MOTION_PIN=11
 LCD_POWER_DETECT_PIN = 24
-TIME_UNTIL_TURN_OFF_MIN= 15 # time of no detected motion until the screen is turned off
+TIME_UNTIL_TURN_OFF_MIN= 2 # time of no detected motion until the screen is turned off
 CHECK_FOR_TURN_OFF_SEC = 30 # sleep time between test for turning off the display
 
 
@@ -51,7 +52,7 @@ def init():
 
     GPIO.setup(LCD_POWER_DETECT_PIN, GPIO.IN)
 
-    last_motion_time = time.time()
+    last_motion_time = datetime.now()
     
     # Interrupt Event hinzufuegen. Pin 24, auf steigende Flanke reagieren und ISR "Interrupt" deklarieren
     GPIO.add_event_detect(MOTION_PIN, GPIO.FALLING, callback = motion_interrupt, bouncetime = 200)
@@ -66,7 +67,7 @@ def motion_interrupt(channel):
     global last_motion_time
     global lcd_on
     
-    last_motion_time = time.time()
+    last_motion_time = datetime.now()
 
     logging.debug("Motion detected")
     #XXX may wait until we received several measures (filtering)
@@ -102,8 +103,8 @@ def press_lcd_power_key():
     
 def check_idle_time_turn_off():
     global lcd_on
-    now = time.time() 
-    diff_min = (now - last_motion_time) / 60
+    now = datetime.now()
+    diff_min = (now - last_motion_time).total_seconds() / 60
 
     logging.debug("Current time diff: %s", diff_min)
 
@@ -125,10 +126,11 @@ if __name__ == '__main__':
     #main_loop()
 
     # start check in an own process
+    print("Starting subprocess")
     fpid = os.fork()
     if fpid==0:
       # Running as daemon now. PID is fpid
       logging.debug("Daemon process started")
       main_loop()
-
-    exit() #exit first start process
+    else:
+        exit() #exit first start process
