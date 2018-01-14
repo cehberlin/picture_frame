@@ -43,8 +43,9 @@ function switch_to_state(){
         else
             #turn on again if display is still reporting off
             #toggle imitates button press
-            gpio -g write $LCD_POWER_PIN 1
             gpio -g write $LCD_POWER_PIN 0
+            sleep 0.1
+            gpio -g write $LCD_POWER_PIN 1
             sleep 1 #wait a moment
             get_lcd_state
         fi
@@ -70,4 +71,3 @@ fi
 echo "Target state: $target_lcd_state"
 
 switch_to_state $target_lcd_state
-
